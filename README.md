@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Cryptocurrency Trading Terminal
 
 A web-based cryptocurrency trading terminal designed for real-time market monitoring and risk-free simulated trading.
