@@ -1099,6 +1099,53 @@ input { font-family: inherit; outline: none; }
   box-shadow: none;
 }
 
+/* ── Demo login button ── */
+.btn-demo {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(104, 211, 145, 0.15) 0%, rgba(118, 228, 247, 0.12) 100%);
+  border: 1px solid rgba(104, 211, 145, 0.35);
+  color: var(--green);
+  font-size: 14.5px;
+  font-weight: 700;
+  font-family: var(--font-ui);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 0 18px rgba(104, 211, 145, 0.12);
+  letter-spacing: 0.2px;
+  margin-bottom: 4px;
+}
+
+.btn-demo:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(104, 211, 145, 0.25) 0%, rgba(118, 228, 247, 0.2) 100%);
+  border-color: rgba(104, 211, 145, 0.6);
+  box-shadow: 0 0 28px rgba(104, 211, 145, 0.28);
+  transform: translateY(-1px);
+}
+
+.btn-demo:active { transform: translateY(0); }
+
+.btn-demo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-demo-icon {
+  font-size: 16px;
+  animation: pulse-icon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.25); opacity: 0.8; }
+}
+
 .auth-divider {
   display: flex;
   align-items: center;

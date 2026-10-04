@@ -35,6 +35,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function PriceChart({ coin, historyData, selectedDays, onDaysChange, loading }) {
   const isPositive = coin?.change24h >= 0;
   const color = isPositive ? '#3fb950' : '#f85149';
+  const gradientId = `colorGrad-${coin?.id || 'default'}`;
 
   return (
     <div className="chart-panel">
@@ -79,7 +80,7 @@ export default function PriceChart({ coin, historyData, selectedDays, onDaysChan
         <ResponsiveContainer width="100%" height={250}>
           <AreaChart data={historyData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
             <defs>
-              <linearGradient id="colorGrad" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={color} stopOpacity={0.3} />
                 <stop offset="95%" stopColor={color} stopOpacity={0} />
               </linearGradient>
@@ -106,7 +107,7 @@ export default function PriceChart({ coin, historyData, selectedDays, onDaysChan
               dataKey="value"
               stroke={color}
               strokeWidth={2}
-              fill="url(#colorGrad)"
+              fill={`url(#${gradientId})`}
             />
           </AreaChart>
         </ResponsiveContainer>
