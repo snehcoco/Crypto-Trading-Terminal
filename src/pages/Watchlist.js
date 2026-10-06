@@ -8,6 +8,13 @@ const formatPrice = (v) => {
   return `$${v.toFixed(6)}`;
 };
 
+const formatVolume = (v) => {
+  if (!v) return '$0';
+  if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`;
+  if (v >= 1e6) return `$${(v / 1e6).toFixed(2)}M`;
+  return `$${v.toLocaleString()}`;
+};
+
 export default function Watchlist() {
   const [items, setItems] = useState([]);
   const [prices, setPrices] = useState({});
@@ -89,7 +96,7 @@ export default function Watchlist() {
 
                 {coinData?.volume24h && (
                   <div style={{ fontSize: 12, color: '#6e7681', marginTop: 6 }}>
-                    Vol: ${(coinData.volume24h / 1e9).toFixed(2)}B
+                    Vol: {formatVolume(coinData.volume24h)}
                   </div>
                 )}
 

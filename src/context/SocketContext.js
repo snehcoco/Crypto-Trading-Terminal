@@ -11,10 +11,20 @@ export function SocketProvider({ children }) {
   const { user } = useAuth();
 
   useEffect(() => {
+    // Connect socket when user is authenticated
+    if (!user) {
+      setSocket((prev) => {
+        if (prev) prev.disconnect();
+        return null;
+      });
+      return;
+    }
+
     const s = io('http://localhost:5000', { transports: ['websocket'] });
     setSocket(s);
 
     s.on('connect', () => console.log('Socket connected:', s.id));
+    s.emit('join_room', user._id);
 
     s.on('market_update', (data) => {
       setMarketData(data);
@@ -22,14 +32,7 @@ export function SocketProvider({ children }) {
     });
 
     return () => s.disconnect();
-  }, []);
-
-  // Join user's room when authenticated (for trade confirmations)
-  useEffect(() => {
-    if (socket && user) {
-      socket.emit('join_room', user._id);
-    }
-  }, [socket, user]);
+  }, [user]);
 
   return (
     <SocketContext.Provider value={{ socket, marketData, lastUpdated }}>

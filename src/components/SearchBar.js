@@ -26,6 +26,7 @@ export default function SearchBar({ onSelectCoin }) {
   useEffect(() => {
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => doSearch(query), 500);
+    return () => clearTimeout(debounceRef.current);
   }, [query, doSearch]);
 
   useEffect(() => {

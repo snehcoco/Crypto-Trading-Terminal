@@ -22,15 +22,19 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const res = await loginUser({ email, password });
     localStorage.setItem('token', res.data.token);
-    setUser(res.data);
-    return res.data;
+    // Store only the user object, not the token, to match what getMe() returns
+    const { token, ...userData } = res.data;
+    setUser(userData);
+    return userData;
   };
 
   const register = async (name, email, password) => {
     const res = await registerUser({ name, email, password });
     localStorage.setItem('token', res.data.token);
-    setUser(res.data);
-    return res.data;
+    // Store only the user object, not the token, to match what getMe() returns
+    const { token, ...userData } = res.data;
+    setUser(userData);
+    return userData;
   };
 
   const logout = () => {

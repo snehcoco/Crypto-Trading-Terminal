@@ -7,6 +7,7 @@ import TradePanel from '../components/TradePanel';
 import toast from 'react-hot-toast';
 
 const formatPrice = (v) => {
+  if (!v && v !== 0) return '$0.00';
   if (v >= 1) return `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return `$${v.toFixed(6)}`;
 };
@@ -27,8 +28,9 @@ export default function Dashboard() {
   const [watchlistIds, setWatchlistIds] = useState(new Set());
   const [tradeKey, setTradeKey] = useState(0);
 
-  // Load initial prices and watchlist
-  useEffect(() => {
+  // Load initial prices and watchlist (runs once on mount)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {  // eslint-disable-line react-hooks/exhaustive-deps
     fetchPrices().then((res) => {
       const data = Array.isArray(res.data) ? res.data : [];
       setPrices(data);
@@ -53,7 +55,7 @@ export default function Dashboard() {
         if (updated) setSelectedCoin((prev) => ({ ...prev, ...updated }));
       }
     }
-  }, [marketData]);
+  }, [marketData, selectedCoin]);
 
   // Load chart data when coin or timeframe changes
   const loadHistory = useCallback(async (coinId, days) => {
@@ -69,7 +71,8 @@ export default function Dashboard() {
     }
   }, []);
 
-  useEffect(() => {
+  // selectedCoin?.id is used intentionally as the dep key to avoid re-fetching on reference changes
+  useEffect(() => {  // eslint-disable-line react-hooks/exhaustive-deps
     if (selectedCoin) loadHistory(selectedCoin.id, selectedDays);
   }, [selectedCoin?.id, selectedDays, loadHistory]);
 
