@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const formatPrice = (v) => {
-  if (!v) return '$0.00';
+  if (!v && v !== 0) return '$0.00';
   if (v >= 1) return `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return `$${v.toFixed(6)}`;
 };

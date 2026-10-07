@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser, registerUser, getMe } from '../api/api';
 
+const DEMO_USER = {
+  _id: 'demo',
+  name: 'Demo Trader',
+  email: 'demo@cryptoterminal.io',
+  virtualBalance: 10000,
+  isDemo: true,
+};
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -8,6 +16,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Restore demo session without hitting the backend
+    if (localStorage.getItem('demo') === 'true') {
+      setUser(DEMO_USER);
+      setLoading(false);
+      return;
+    }
     const token = localStorage.getItem('token');
     if (token) {
       getMe()
@@ -37,8 +51,14 @@ export function AuthProvider({ children }) {
     return userData;
   };
 
+  const loginDemo = () => {
+    localStorage.setItem('demo', 'true');
+    setUser(DEMO_USER);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('demo');
     setUser(null);
   };
 
@@ -47,7 +67,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateBalance }}>
+    <AuthContext.Provider value={{ user, loading, login, loginDemo, register, logout, updateBalance }}>
       {children}
     </AuthContext.Provider>
   );

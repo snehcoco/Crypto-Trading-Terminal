@@ -7,7 +7,7 @@ const DEMO_EMAIL = 'demo@cryptoterminal.io';
 const DEMO_PASSWORD = 'demo1234';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, loginDemo } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -49,17 +49,11 @@ export default function Login() {
     await typeValue(setEmail, DEMO_EMAIL);
     await typeValue(setPassword, DEMO_PASSWORD, 120);
     setDemoTyping(false);
-    setTimeout(async () => {
-      setLoading(true);
-      try {
-        await login(DEMO_EMAIL, DEMO_PASSWORD);
-        toast.success('Demo mode — welcome! 🚀');
-      } catch {
-        toast.error('Demo account not found. Register it first or check your backend.');
-      } finally {
-        setLoading(false);
-      }
-    }, 450);
+    // Skip the backend entirely — log in instantly with the mock demo user
+    setTimeout(() => {
+      loginDemo();
+      toast.success('Demo mode — welcome! 🚀');
+    }, 300);
   };
 
   return (

@@ -11,8 +11,8 @@ export function SocketProvider({ children }) {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Connect socket when user is authenticated
-    if (!user) {
+    // Connect socket when user is authenticated (skip for demo-only session)
+    if (!user || user.isDemo) {
       setSocket((prev) => {
         if (prev) prev.disconnect();
         return null;
@@ -23,8 +23,11 @@ export function SocketProvider({ children }) {
     const s = io('http://localhost:5000', { transports: ['websocket'] });
     setSocket(s);
 
-    s.on('connect', () => console.log('Socket connected:', s.id));
-    s.emit('join_room', user._id);
+    // Emit join_room only AFTER the connection is established to avoid a race condition
+    s.on('connect', () => {
+      console.log('Socket connected:', s.id);
+      s.emit('join_room', user._id);
+    });
 
     s.on('market_update', (data) => {
       setMarketData(data);
