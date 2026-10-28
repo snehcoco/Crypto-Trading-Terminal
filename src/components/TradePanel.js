@@ -18,8 +18,12 @@ export default function TradePanel({ coin, onTradeSuccess }) {
 
   const handleTrade = async (type) => {
     const qty = parseFloat(quantity);
-    if (!qty || qty <= 0) { toast.error('Enter a valid quantity'); return; }
     if (!coin) { toast.error('Please select a coin first'); return; }
+    const orderAmount = qty * coin.price;
+    if (!Number.isFinite(qty) || qty <= 0 || !Number.isFinite(orderAmount) || orderAmount <= 0) {
+      toast.error('Invalid order amount');
+      return;
+    }
 
     setLoading(true);
     try {
