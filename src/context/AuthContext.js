@@ -2,12 +2,25 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser, registerUser, getMe } from '../api/api';
 
 const AuthContext = createContext(null);
+const DEMO_SESSION_KEY = 'demo-session';
+const DEMO_USER = {
+  _id: 'demo-user',
+  name: 'Demo Trader',
+  email: 'demo@cryptoterminal.io',
+  virtualBalance: 100000,
+};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (localStorage.getItem(DEMO_SESSION_KEY) === 'true') {
+      setUser(DEMO_USER);
+      setLoading(false);
+      return;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       getMe()
@@ -28,6 +41,13 @@ export function AuthProvider({ children }) {
     return userData;
   };
 
+  const loginDemo = () => {
+    localStorage.removeItem('token');
+    localStorage.setItem(DEMO_SESSION_KEY, 'true');
+    setUser(DEMO_USER);
+    return DEMO_USER;
+  };
+
   const register = async (name, email, password) => {
     const res = await registerUser({ name, email, password });
     localStorage.setItem('token', res.data.token);
@@ -39,6 +59,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem(DEMO_SESSION_KEY);
     setUser(null);
   };
 
@@ -47,7 +68,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateBalance }}>
+    <AuthContext.Provider value={{ user, loading, login, loginDemo, register, logout, updateBalance }}>
       {children}
     </AuthContext.Provider>
   );
