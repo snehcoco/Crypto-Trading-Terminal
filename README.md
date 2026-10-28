@@ -159,6 +159,27 @@ Update this section according to the technologies actually implemented by the te
 
 ---
 
+## Running the Web Application
+
+### Frontend
+
+Install [Node.js](https://nodejs.org/) and npm, then open a terminal in the project root and run:
+
+```bash
+npm ci
+npm start
+```
+
+The React development server opens at `http://localhost:3000`.
+
+### Backend
+
+The frontend sends API requests to `http://localhost:5000/api`. Start the project's backend in a separate terminal and make sure it listens on port `5000` before using features such as registration, login, market data, and simulated trades.
+
+This repository contains the frontend only, so the backend must be available separately. The frontend does not create a demo account automatically; register an account through the running backend before signing in.
+
+---
+
 ## Project Structure
 
 ```text
