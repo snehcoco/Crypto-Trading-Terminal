@@ -21,6 +21,8 @@ const formatVolume = (v) => {
 export default function Dashboard() {
   const { marketData, lastUpdated } = useSocket();
   const [prices, setPrices] = useState([]);
+  const [pricesLoading, setPricesLoading] = useState(true);
+  const [pricesError, setPricesError] = useState('');
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [historyData, setHistoryData] = useState([]);
   const [selectedDays, setSelectedDays] = useState(7);
@@ -28,27 +30,40 @@ export default function Dashboard() {
   const [watchlistIds, setWatchlistIds] = useState(new Set());
   const [tradeKey, setTradeKey] = useState(0);
 
-  // Load initial prices and watchlist (runs once on mount)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {  // eslint-disable-line react-hooks/exhaustive-deps
-    fetchPrices().then((res) => {
+  const loadPrices = useCallback(async () => {
+    setPricesLoading(true);
+    setPricesError('');
+    try {
+      const res = await fetchPrices();
       const data = Array.isArray(res.data) ? res.data : [];
       setPrices(data);
-      if (data.length > 0 && !selectedCoin) {
-        setSelectedCoin(data[0]);
-      }
-    }).catch(() => {});
+      if (data.length > 0) setSelectedCoin((current) => current || data[0]);
+      if (data.length === 0) setPricesError('No market data is available right now.');
+    } catch (err) {
+      setPricesError(err.code === 'ECONNABORTED'
+        ? 'The market data request timed out. Check the backend and try again.'
+        : err.response
+          ? 'Could not load market data. Check the backend and try again.'
+          : 'Cannot reach the backend API at http://localhost:5000. Start the backend and try again.');
+    } finally {
+      setPricesLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
+    loadPrices();
     fetchWatchlist().then((res) => {
       const wl = Array.isArray(res.data) ? res.data : [];
       setWatchlistIds(new Set(wl.map((i) => i.cryptoId)));
     }).catch(() => {});
-  }, []);
+  }, [loadPrices]);
 
   // Sync with WebSocket market data
   useEffect(() => {
     if (Array.isArray(marketData) && marketData.length > 0) {
       setPrices(marketData);
+      setPricesError('');
+      setPricesLoading(false);
       // Update selected coin price
       if (selectedCoin) {
         const updated = marketData.find((c) => c.id === selectedCoin.id);
@@ -140,8 +155,19 @@ export default function Dashboard() {
                     <tr>
                       <td colSpan={6} style={{ textAlign: 'center', padding: 48 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                          <div className="spinner" style={{ width: 32, height: 32 }} />
-                          <span className="loading-text">Fetching live market data...</span>
+                          {pricesLoading ? (
+                            <>
+                              <div className="spinner" style={{ width: 32, height: 32 }} />
+                              <span className="loading-text">Fetching live market data...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="loading-text">{pricesError || 'No market data is available right now.'}</span>
+                              <button className="btn-primary" type="button" onClick={loadPrices}>
+                                Retry
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

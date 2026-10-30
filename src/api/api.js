@@ -14,10 +14,11 @@ api.interceptors.request.use((config) => {
 // Auth
 export const registerUser = (data) => api.post('/auth/register', data);
 export const loginUser = (data) => api.post('/auth/login', data);
+export const loginDemoUser = () => api.post('/auth/demo');
 export const getMe = () => api.get('/auth/me');
 
 // Market
-export const fetchPrices = () => api.get('/market/prices');
+export const fetchPrices = () => api.get('/market/prices', { timeout: 15000 });
 export const fetchHistory = (coinId, days) => api.get(`/market/history/${coinId}?days=${days}`);
 export const searchCoins = (q) => api.get(`/market/search?q=${q}`);
 

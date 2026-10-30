@@ -129,27 +129,25 @@ Maintains a record of simulated buying and selling activities.
 
 ## Technology Stack
 
-Update this section according to the technologies actually implemented by the team.
-
 ### Frontend
 
-* HTML
-* CSS
+* React
 * JavaScript
-* React (if used)
+* CSS
 
 ### Backend
 
-* Python / Node.js (as implemented)
+* Node.js
+* Express
 
 ### Database
 
-* SQL-based database
+* MongoDB Atlas
 
 ### APIs
 
-* Cryptocurrency market-data API
-* WebSocket for real-time updates (if implemented)
+* CoinGecko market-data API
+* Socket.IO for real-time market updates
 
 ### Development Tools
 
@@ -174,9 +172,29 @@ The React development server opens at `http://localhost:3000`.
 
 ### Backend
 
-The frontend sends API requests to `http://localhost:5000/api`. Start the project's backend in a separate terminal and make sure it listens on port `5000` before using features such as registration, login, market data, and simulated trades.
+The backend uses MongoDB Atlas and serves API requests at `http://localhost:5000/api`. Create an Atlas database user and allow your current IP address in Atlas Network Access. Keep the database password private; do not commit it.
 
-This repository contains the frontend only, so the backend must be available separately. The frontend does not create a demo account automatically; register an account through the running backend before signing in.
+In a second terminal, from the project root, install the backend dependencies and create its local environment file:
+
+```powershell
+cd server
+npm ci
+Copy-Item .env.example .env
+```
+
+Edit `server/.env` and replace `MONGODB_URI` with the connection string from Atlas. If your database password contains reserved URI characters, percent-encode them before adding the URI. Generate a JWT secret with:
+
+```powershell
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+Paste the generated value into `JWT_SECRET` in `server/.env`. Then start the API:
+
+```powershell
+npm run dev
+```
+
+The backend waits for a successful Atlas connection before listening on port `5000`. Check its health at `http://localhost:5000/api/health`; the response should report `"database":"connected"`. The frontend market-data endpoint also requires internet access to CoinGecko. Once the API is running, start the frontend from the project root with `npm start`. The **Try Demo Account** button creates or signs into a paper-trading demo account; you can also register a separate account.
 
 ---
 
@@ -185,27 +203,17 @@ This repository contains the frontend only, so the backend must be available sep
 ```text
 Cryptocurrency-Trading-Terminal/
 │
-├── frontend/
+├── public/
+├── server/
+│   ├── .env.example
+│   ├── package.json
+│   └── server.js
+├── src/
+│   ├── api/
 │   ├── components/
-│   ├── pages/
-│   ├── services/
-│   └── ...
-│
-├── backend/
-│   ├── routes/
-│   ├── models/
-│   ├── services/
-│   └── ...
-│
-├── database/
-│
-├── docs/
-│   ├── activity-diagram
-│   ├── sequence-diagram
-│   ├── class-diagram
-│   ├── architecture-diagram
-│   └── ui-mockup
-│
+│   ├── context/
+│   └── pages/
+├── package.json
 ├── README.md
 └── ...
 ```

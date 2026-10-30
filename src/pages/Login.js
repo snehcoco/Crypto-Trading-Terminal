@@ -24,13 +24,18 @@ export default function Login() {
     }
   };
 
-  const handleDemoLogin = () => {
+  const handleDemoLogin = async () => {
     if (loading) return;
     setError('');
     setLoading(true);
-    loginDemo();
-    toast.success('Demo mode — welcome! 🚀');
-    setLoading(false);
+    try {
+      await loginDemo();
+      toast.success('Demo mode — welcome! 🚀');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not connect to the demo account. Check that the backend is running.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
