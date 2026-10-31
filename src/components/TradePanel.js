@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { executeTrade } from '../api/api';
+import React, { useCallback, useEffect, useState } from 'react';
+import { executeTrade, fetchPortfolio } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -13,8 +13,29 @@ export default function TradePanel({ coin, onTradeSuccess }) {
   const { user, updateBalance } = useAuth();
   const [quantity, setQuantity] = useState('');
   const [loading, setLoading] = useState(false);
+  const [availableHolding, setAvailableHolding] = useState(0);
 
   const estimatedCost = quantity && coin ? (parseFloat(quantity) * coin.price) : 0;
+  const availableBalance = Number(user?.virtualBalance) || 0;
+  const maxBuyQuantity = coin?.price > 0 ? availableBalance / coin.price : 0;
+
+  const loadHolding = useCallback(async () => {
+    if (!coin) {
+      setAvailableHolding(0);
+      return;
+    }
+    try {
+      const res = await fetchPortfolio();
+      const holding = res.data?.holdings?.find((item) => item.cryptoId === coin.id);
+      setAvailableHolding(Number(holding?.quantity) || 0);
+    } catch {
+      setAvailableHolding(0);
+    }
+  }, [coin]);
+
+  useEffect(() => {
+    loadHolding();
+  }, [loadHolding]);
 
   const handleTrade = async (type) => {
     const qty = parseFloat(quantity);
@@ -22,6 +43,14 @@ export default function TradePanel({ coin, onTradeSuccess }) {
     const orderAmount = qty * coin.price;
     if (!Number.isFinite(qty) || qty <= 0 || !Number.isFinite(orderAmount) || orderAmount <= 0) {
       toast.error('Invalid order amount');
+      return;
+    }
+    if (type === 'BUY' && orderAmount > availableBalance) {
+      toast.error(`Insufficient virtual balance. Maximum: ${maxBuyQuantity.toFixed(6)} ${coin.symbol.toUpperCase()}`);
+      return;
+    }
+    if (type === 'SELL' && qty > availableHolding) {
+      toast.error(`Insufficient holdings. You own ${availableHolding.toFixed(6)} ${coin.symbol.toUpperCase()}`);
       return;
     }
 
@@ -38,6 +67,7 @@ export default function TradePanel({ coin, onTradeSuccess }) {
       updateBalance(res.data.newBalance);
       toast.success(`✅ ${type} order for ${qty} ${coin.symbol} executed!`);
       setQuantity('');
+      await loadHolding();
       if (onTradeSuccess) onTradeSuccess(res.data);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Trade failed');
@@ -96,11 +126,17 @@ export default function TradePanel({ coin, onTradeSuccess }) {
           </button>
         </div>
 
-        {user && (
-          <div style={{ fontSize: 12, color: '#6e7681', textAlign: 'center', marginTop: 4 }}>
-            Available: <span style={{ color: '#3fb950', fontWeight: 600 }}>
-              ${user.virtualBalance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
+        {user && coin && (
+          <div className="trade-availability">
+            <div>
+              Available cash: <strong>${availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+            </div>
+            <div>
+              Owned: <strong>{availableHolding.toFixed(6)} {coin.symbol.toUpperCase()}</strong>
+            </div>
+            <div>
+              Maximum buy: <strong>{maxBuyQuantity.toFixed(6)} {coin.symbol.toUpperCase()}</strong>
+            </div>
           </div>
         )}
       </div>

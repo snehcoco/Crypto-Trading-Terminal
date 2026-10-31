@@ -58,19 +58,18 @@ export default function Dashboard() {
     }).catch(() => {});
   }, [loadPrices]);
 
-  // Sync with WebSocket market data
   useEffect(() => {
     if (Array.isArray(marketData) && marketData.length > 0) {
       setPrices(marketData);
       setPricesError('');
       setPricesLoading(false);
-      // Update selected coin price
-      if (selectedCoin) {
-        const updated = marketData.find((c) => c.id === selectedCoin.id);
-        if (updated) setSelectedCoin((prev) => ({ ...prev, ...updated }));
-      }
+      setSelectedCoin((current) => {
+        if (!current) return current;
+        const updated = marketData.find((coin) => coin.id === current.id);
+        return updated ? { ...current, ...updated } : current;
+      });
     }
-  }, [marketData, selectedCoin]);
+  }, [marketData]);
 
   // Load chart data when coin or timeframe changes
   const loadHistory = useCallback(async (coinId, days) => {
@@ -86,10 +85,10 @@ export default function Dashboard() {
     }
   }, []);
 
-  // selectedCoin?.id is used intentionally as the dep key to avoid re-fetching on reference changes
-  useEffect(() => {  // eslint-disable-line react-hooks/exhaustive-deps
-    if (selectedCoin) loadHistory(selectedCoin.id, selectedDays);
-  }, [selectedCoin?.id, selectedDays, loadHistory]);
+  const selectedCoinId = selectedCoin?.id;
+  useEffect(() => {
+    if (selectedCoinId) loadHistory(selectedCoinId, selectedDays);
+  }, [selectedCoinId, selectedDays, loadHistory]);
 
   const handleCoinSelect = (coin) => {
     // Map search result to market data format if needed

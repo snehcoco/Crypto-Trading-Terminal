@@ -6,11 +6,14 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef(null);
+  const mobileNavRef = useRef(null);
 
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+      if (mobileNavRef.current && !mobileNavRef.current.contains(e.target)) setMobileNavOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -36,7 +39,10 @@ export default function Navbar() {
       </div>
 
       {/* Nav links — pill style */}
-      <div className="navbar-nav">
+      <div
+        className={`navbar-nav${mobileNavOpen ? ' mobile-open' : ''}`}
+        id="primary-navigation"
+      >
         {[
           { to: '/', label: 'Dashboard', end: true },
           { to: '/watchlist', label: 'Watchlist' },
@@ -47,6 +53,7 @@ export default function Navbar() {
             key={to}
             to={to}
             end={end}
+            onClick={() => setMobileNavOpen(false)}
             className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
           >
             {label}
@@ -73,6 +80,21 @@ export default function Navbar() {
               </button>
             </div>
           )}
+        </div>
+
+        <div className="mobile-nav-control" ref={mobileNavRef}>
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label={mobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-controls="primary-navigation"
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </div>
     </nav>
