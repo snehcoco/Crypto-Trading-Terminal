@@ -187,7 +187,7 @@ Add these values to `server/.env`:
 ```dotenv
 PORT=5000
 FRONTEND_URL=http://localhost:3000
-MONGODB_URI=mongodb+srv://YOUR_USER:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/crypto_trading_terminal?retryWrites=true&w=majority
+MONGODB_URI=PASTE_YOUR_MONGODB_ATLAS_CONNECTION_STRING_HERE
 JWT_SECRET=REPLACE_WITH_A_RANDOM_SECRET
 ```
 
