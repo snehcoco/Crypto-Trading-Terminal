@@ -159,42 +159,62 @@ Maintains a record of simulated buying and selling activities.
 
 ## Running the Web Application
 
-### Frontend
+### Prerequisites
 
-Install [Node.js](https://nodejs.org/) and npm, then open a terminal in the project root and run:
+Install [Node.js](https://nodejs.org/) 20 or newer. npm is included with Node.js.
 
-```bash
-npm ci
-npm start
+If PowerShell reports that `npm.ps1` cannot be loaded because script execution is disabled, run this once (Administrator access is not required), restart the terminal, and verify npm:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+npm --version
 ```
 
-The React development server opens at `http://localhost:3000`.
+### 1. Configure and start the backend
 
-### Backend
+The backend uses MongoDB Atlas and serves API requests at `http://localhost:5000/api`. In Atlas, create a database user and add your current IP address under **Security > Network Access**. Keep the database password private and never commit `server/.env`.
 
-The backend uses MongoDB Atlas and serves API requests at `http://localhost:5000/api`. Create an Atlas database user and allow your current IP address in Atlas Network Access. Keep the database password private; do not commit it.
-
-In a second terminal, from the project root, install the backend dependencies and create its local environment file:
+Open a terminal in the project root and run:
 
 ```powershell
 cd server
 npm ci
-Copy-Item .env.example .env
+New-Item -Path .env -ItemType File -Force
 ```
 
-Edit `server/.env` and replace `MONGODB_URI` with the connection string from Atlas. If your database password contains reserved URI characters, percent-encode them before adding the URI. Generate a JWT secret with:
+Add these values to `server/.env`:
+
+```dotenv
+PORT=5000
+FRONTEND_URL=http://localhost:3000
+MONGODB_URI=mongodb+srv://YOUR_USER:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/crypto_trading_terminal?retryWrites=true&w=majority
+JWT_SECRET=REPLACE_WITH_A_RANDOM_SECRET
+```
+
+If the database password contains reserved URI characters, percent-encode them in `MONGODB_URI`. Generate a JWT secret with:
 
 ```powershell
 node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
 ```
 
-Paste the generated value into `JWT_SECRET` in `server/.env`. Then start the API:
+Paste the generated value after `JWT_SECRET=`, then start the API:
 
 ```powershell
 npm run dev
 ```
 
-The backend waits for a successful Atlas connection before listening on port `5000`. Check its health at `http://localhost:5000/api/health`; the response should report `"database":"connected"`. The frontend market-data endpoint also requires internet access to CoinGecko. Once the API is running, start the frontend from the project root with `npm start`. The **Try Demo Account** button creates or signs into a paper-trading demo account; you can also register a separate account.
+Confirm that `http://localhost:5000/api/health` reports `"database":"connected"` before starting the frontend.
+
+### 2. Start the frontend
+
+Open a second terminal in the project root and run:
+
+```powershell
+npm ci
+npm start
+```
+
+The application opens at `http://localhost:3000`. Its market-data features require internet access to CoinGecko. The **Try Demo Account** button creates or signs into a paper-trading demo account; you can also register a separate account.
 
 ---
 
@@ -205,7 +225,6 @@ Cryptocurrency-Trading-Terminal/
 │
 ├── public/
 ├── server/
-│   ├── .env.example
 │   ├── package.json
 │   └── server.js
 ├── src/
