@@ -154,11 +154,18 @@ input { font-family: inherit; outline: none; }
   width: 34px;
   height: 34px;
   background: linear-gradient(135deg, #667eea, #764ba2);
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: #ffffff;
+  color: #ffffff;
   border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.16);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
